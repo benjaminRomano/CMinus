@@ -1,0 +1,146 @@
+
+import java.util.*;
+import java.io.*;
+import java_cup.runtime.Symbol;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import java_cup.runtime.ComplexSymbolFactory;
+import nodes.declarations.*;
+import nodes.statements.*;
+import nodes.expressions.*;
+import nodes.*;
+import types.*;
+
+parser code {:
+  public boolean syntaxErrors;
+
+  Lexer lexer;
+
+  public Parser(Lexer lex, ComplexSymbolFactory sf) {
+    super(lex,sf);
+    lexer = lex;
+  }
+:};
+
+terminal DO, IF, ELSE, VOID, WHILE, OPENPAREN, CLOSEPAREN, OPENBRACE, CLOSEBRACE, OPENBRACKET, CLOSEBRACKET, EQUALS, SEMICOLON, AMPERSAND, COMMA, UMINUS;
+
+terminal OperatorKind AMPERSANDAMPERSAND, BARBAR, PLUS, MINUS, LESSTHAN, LESSTHANEQUALS, GREATERTHAN, GREATERTHANEQUALS, EQUALSEQUALS, EXCLAMATIONEQUALS, EXCLAMATION, ASTERISK, SLASH, PERCENT;
+terminal TypeKind BOOL, INT;
+terminal String IDENTIFIER;
+terminal Integer INTLITERAL;
+terminal Boolean BOOLLITERAL;
+
+non terminal Program program;
+non terminal List<Declaration> declarationList;
+non terminal Declaration declaration;
+non terminal VariableDeclaration variableDeclaration;
+non terminal FunctionDeclaration functionDeclaration;
+non terminal List<Variable> variableList;
+non terminal Variable variable;
+non terminal TypeKind type;
+non terminal List<Parameter> parameterList;
+non terminal Parameter parameter;
+non terminal List<VariableDeclaration> variableDeclarationList;
+non terminal List<Statement> statementList;
+non terminal Statement statement;
+non terminal BlockStatement blockStatement;
+non terminal Expression expression;
+non terminal IfStatement ifStatement;
+non terminal WhileStatement whileStatement;
+non terminal FunctionCallStatement functionCallStatement;
+non terminal DoStatement doStatement;
+non terminal AssignmentStatement assignmentStatement;
+non terminal List<Expression> expressionList;
+non terminal LocationExpression locationExpression;
+
+precedence left ELSE;
+precedence left PLUS, MINUS;
+precedence left ASTERISK, PERCENT, SLASH;
+precedence left AMPERSANDAMPERSAND, BARBAR;
+precedence left LESSTHAN, GREATERTHAN, LESSTHANEQUALS, GREATERTHANEQUALS, EQUALSEQUALS, EXCLAMATIONEQUALS;
+precedence left UMINUS;
+
+start with program;
+
+program ::= declarationList:dl {: RESULT = new Program(dl); :};
+
+declarationList ::= declaration:d declarationList:dl {: dl.add(d); RESULT = dl; :}
+           | {: RESULT = new ArrayList<Declaration>(); :};
+
+declaration ::= variableDeclaration:vd {: RESULT = vd; :}
+              | functionDeclaration:fd {: RESULT = fd; :};
+
+functionDeclaration ::= VOID IDENTIFIER:i OPENPAREN parameter:p parameterList:pl CLOSEPAREN blockStatement:bs {: pl.add(p); RESULT = new FunctionDeclaration(i, pl, bs); :}
+                      | VOID IDENTIFIER:i OPENPAREN CLOSEPAREN blockStatement:bs {: RESULT = new FunctionDeclaration(i, bs); :};
+
+variableDeclaration ::= type:t variable:v variableList:vl SEMICOLON {: vl.add(v); RESULT = new VariableDeclaration(t, vl); :};
+
+variableList ::= variableList:vl COMMA variable:v {: vl.add(v); RESULT = vl; :}
+               | {: RESULT = new LinkedList<Variable>(); :} ;
+
+variable ::= IDENTIFIER:i {: RESULT = new Variable(i); :}
+           | IDENTIFIER:i OPENBRACKET INTLITERAL:il CLOSEBRACKET {: RESULT = new Variable(i, il); :};
+
+type ::= BOOL:b {: RESULT = b; :}
+       | INT:i {: RESULT = i; :};
+
+parameterList ::= parameterList:pl COMMA parameter:p {: pl.add(p); RESULT = pl; :}
+                | {: RESULT = new LinkedList<Parameter>(); :};
+
+parameter ::= type:t IDENTIFIER:i OPENBRACKET CLOSEBRACKET {: RESULT = new Parameter(t, false, i, true); :}
+            | type:t IDENTIFIER:i {: RESULT = new Parameter(t, false, i, false); :}
+            | type:t AMPERSAND IDENTIFIER:i {: RESULT = new Parameter(t, true, i, false); :};
+
+blockStatement ::= OPENBRACE variableDeclarationList:vdl statementList:sl CLOSEBRACE {: RESULT = new BlockStatement(vdl, sl); :};
+
+variableDeclarationList ::= variableDeclaration:vd variableDeclarationList:vdl {: vdl.add(vd); RESULT = vdl; :}
+                | {: RESULT = new ArrayList<VariableDeclaration>(); :};
+
+statementList ::= statement:s statementList:sl {: sl.add(s); RESULT = sl; :}
+                | {: RESULT = new ArrayList<Statement>(); :};
+
+statement ::= blockStatement:bs {: RESULT = bs; :}
+            | ifStatement:is {: RESULT = is; :}
+            | whileStatement:ws {: RESULT = ws; :}
+            | doStatement:ds {: RESULT = ds; :}
+            | functionCallStatement:fcs {: RESULT = fcs; :}
+            | assignmentStatement:as {: RESULT = as; :};
+
+
+ifStatement ::= IF OPENPAREN expression:e CLOSEPAREN statement:s {: RESULT = new IfStatement(e, s, null); :}
+              | IF OPENPAREN expression:e CLOSEPAREN statement:s ELSE statement:es {: RESULT = new IfStatement(e, s, es); :};
+
+whileStatement ::= WHILE OPENPAREN expression:e CLOSEPAREN statement:s {: RESULT = new WhileStatement(e, s); :};
+
+doStatement ::= DO statement:s WHILE OPENPAREN expression:e CLOSEPAREN SEMICOLON {: RESULT = new DoStatement(s, e); :};
+
+functionCallStatement ::= IDENTIFIER:i OPENPAREN expression:e expressionList:el CLOSEPAREN SEMICOLON {: el.add(e); RESULT = new FunctionCallStatement(i, el); :}
+                        | IDENTIFIER:i OPENPAREN CLOSEPAREN SEMICOLON {: RESULT = new FunctionCallStatement(i); :};
+
+expressionList ::= expressionList:el COMMA expression:e {: el.add(e); RESULT = el; :}
+                | {: RESULT = new ArrayList<Expression>(); :};
+
+
+assignmentStatement ::= locationExpression:le EQUALS expression:e SEMICOLON {: RESULT = new AssignmentStatement(le, e); :};
+
+locationExpression ::= IDENTIFIER:i {: RESULT = new LocationExpression(i); :}
+                     | IDENTIFIER:i OPENBRACKET expression:e CLOSEBRACKET {: RESULT = new LocationExpression(i, e); :};
+
+expression ::= expression:e1 PLUS:o  expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 MINUS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 AMPERSANDAMPERSAND:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 BARBAR:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 ASTERISK:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 SLASH:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 PERCENT:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 LESSTHAN:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 LESSTHANEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 GREATERTHAN:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 GREATERTHANEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 EQUALSEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | expression:e1 EXCLAMATIONEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
+       | MINUS:o expression:e {: RESULT = new UnaryExpression(o, e); :} %prec UMINUS
+       | EXCLAMATION:o expression:e {: RESULT = new UnaryExpression(o, e); :}
+       | OPENPAREN expression:e CLOSEPAREN {: RESULT = e; :}
+       | BOOLLITERAL:b {: RESULT = new BooleanExpression(b); :}
+       | INTLITERAL:i {: RESULT = new IntegerExpression(i); :}
+       | locationExpression:le {: RESULT = le; :};
