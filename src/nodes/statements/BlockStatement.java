@@ -11,7 +11,7 @@ public class BlockStatement implements Statement {
     public SymbolTable symbolTable;
 
     public BlockStatement(List<VariableDeclaration> variableDeclarations, List<Statement> statements) {
-        variableDeclarations = variableDeclarations;
-        statements = statements;
+        this.variableDeclarations = variableDeclarations;
+        this.statements = statements;
     }
 }

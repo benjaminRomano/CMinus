@@ -138,7 +138,7 @@ expression ::= expression:e1 PLUS:o  expression:e2 {: RESULT = new BinaryExpress
        | expression:e1 GREATERTHANEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
        | expression:e1 EQUALSEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
        | expression:e1 EXCLAMATIONEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-       | MINUS:o expression:e {: RESULT = new UnaryExpression(o, e); :} %prec UMINUS
+       | MINUS:o expression:e {: RESULT = new UnaryExpression(OperatorKind.Minus, e); :} %prec UMINUS
        | EXCLAMATION:o expression:e {: RESULT = new UnaryExpression(o, e); :}
        | OPENPAREN expression:e CLOSEPAREN {: RESULT = e; :}
        | BOOLLITERAL:b {: RESULT = new BooleanExpression(b); :}

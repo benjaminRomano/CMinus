@@ -5,7 +5,7 @@ import types.TypeKind;
 
 public class Symbol {
     public String label;
-    public SymbolLocation location;
+    public Location location;
 
     private Type type;
     private boolean reference;

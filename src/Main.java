@@ -1,5 +1,11 @@
+import checker.Checker;
+import generator.Generator;
+import generator.Instruction;
 import java_cup.runtime.ComplexSymbolFactory;
 import nodes.Program;
+
+import java.io.PrintWriter;
+import java.util.List;
 
 public class Main {
 
@@ -20,11 +26,15 @@ public class Main {
         try {
             Parser p = new Parser(scanner, csf);
             Program result = (Program) p.parse().value;
+            new Checker().check(result);
+            List<Instruction> instructions = new Generator().generate(result);
 
-            System.out.println("Parsed successfully!");
-//            MiniJVMGenerator jvm = new MiniJVMGenerator(argv[0]);
-//            result.accept(jvm);
-//            jvm.flush();
+            System.out.println();
+            instructions.forEach(System.out::println);
+
+            try (PrintWriter out = new PrintWriter("output.sm")) {
+                instructions.forEach(out::println);
+            }
         } catch (java.io.IOException e) {
             System.err.println("An I/O error occured while parsing : \n" + e);
             System.exit(1);

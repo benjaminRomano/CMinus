@@ -1,11 +1,13 @@
 int x;
 bool y[5], z[5], n;
 
-void hello(int B[], bool A) {
-    int x; bool y[5], z[5], n;
-    a = 5;
-    b[10] = 111;
-    while (---5) { }
-    do {} while (5 + 5 == 5);
-    if (5 == 5) { } else if (4 * -5 + 10) { }
+void main() {
+    int x, y;
+    x = 5;
+    y = 10;
+    if (x == 10) {
+        print(x);
+    } else {
+        print(-1);
+    }
 }
