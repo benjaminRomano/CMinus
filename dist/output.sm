@@ -1,0 +1,31 @@
+         INIT                      
+         ALLOC    12               
+         JMP      L1               
+L2       PROC     1                
+         ALLOC    2                
+         LDV      1        2       
+         LDC      10               
+         EQ                        
+         JMPF     L3               
+         ENTER    2                
+         LDV      1        2       
+         OUT                       
+         EXIT     2                
+         JMP      L4               
+L3       NOP                       
+         ENTER    2                
+         LDC      1                
+         NEG                       
+         OUT                       
+         EXIT     2                
+L4       NOP                       
+         LDC      10               
+         ST       1        1       
+         LDC      5                
+         ST       1        2       
+         ALLOC    -2               
+         RET      1                
+L1       NOP                       
+         CALL     L2               
+         ALLOC    -12              
+         HALT                      

@@ -41,49 +41,5 @@
       </manifest>
     </jar>
   </target>
-
-  <target name="run" depends="dist">
-    <echo>! Generating JVM Code</echo>
-    <java jar="${dist}/Compiler.jar"  fork="true">
-      <arg value="-jvm" />
-      <arg value="input.minijava" />
-      <classpath refid="libraries" />
-    </java>
-    <echo>! Generating the syntax tree as Metapost</echo>
-    <java jar="${dist}/Compiler.jar"  fork="true">
-      <arg value="-syntax" />
-      <arg value="input.minijava" />
-      <classpath refid="libraries" />
-    </java>
-    <echo>! Generating the PDF-diagram for the syntax tree</echo>
-    <echo>Dafuer notwendige Tools:</echo>
-    <echo> * Metapost (mpost)   .mp -> .1</echo>
-    <echo> * Metapost (mptopdf) .1  -> .pdf</echo>
-    <echo> ------ Start mp->pdf --------</echo>
-    <exec executable="mpost">
-      <arg value="input.minijava.mp"/>
-    </exec>
-    <exec executable="epstopdf">
-      <arg value="input.minijava.1"/>
-    </exec>
-    <echo> ------ mp->pdf done --------</echo>
-    <echo>! Generating the control flow as Metapost</echo>
-    <java jar="${dist}/Compiler.jar"  fork="true">
-      <arg value="-cfg" />
-      <arg value="input.minijava" />
-      <classpath refid="libraries" />
-    </java>
-    <echo>! Generating the PDF-diagram for the control flow</echo>
-    <echo> * Metapost (mpost)   .cfg.mp -> .cfg.1</echo>
-    <echo> * Metapost (mptopdf) .cfg.1  -> .cfg.pdf</echo>
-    <echo> ------ Start mp->pdf --------</echo>
-    <exec executable="mpost">
-      <arg value="input.minijava.cfg.mp"/>
-    </exec>
-    <exec executable="epstopdf">
-      <arg value="input.minijava.cfg.1"/>
-    </exec>
-    <echo> ------ mp->pdf done --------</echo>
-  </target>
 </project>
 
