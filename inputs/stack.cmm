@@ -1,0 +1,40 @@
+
+/* example program with a stack represented as an array */
+
+int stack[10], top;
+
+void initialize() {
+	top=-1;
+}
+
+void push (int value) {
+	if (top<9) {
+		top=top+1;
+		stack[top]=value;
+	}
+}
+
+void pop(int& value) {
+	if (top>=0) {
+		value=stack[top];
+		top=top-1;
+	}
+        else 
+		value=0;
+}
+
+void main() {            /* the main function */
+	int k;
+	initialize();
+	k=1;
+	while (k<=1024) {
+		push(k);
+		k=k*2;
+	}
+	while(top>=0) {
+		pop(k);
+		print(k);
+	}
+}
+
+/* end of the program */

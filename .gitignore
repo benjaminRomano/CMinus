@@ -50,3 +50,4 @@ src/Parser.java
 src/sym.java
 
 classes/
+dist/*.jar

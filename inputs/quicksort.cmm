@@ -1,0 +1,41 @@
+
+/* this program quicksorts an array of numbers */
+
+    int A[10];
+
+    void swap (int& x, int&y) {
+        int t; t=x; x=y; y=t;
+    }
+
+    void partition (int B[], int p, int r, int& m) {
+	int x, i, j; bool flag;
+	x = B[p];
+	i = p-1;
+	j = r+1;
+	flag=true;
+	do {
+	    do i=i+1; while (B[i]<x);
+	    do j=j-1; while (B[j]>x);
+	    if (i<j) swap(B[i], B[j]);
+	    else {m=j; flag=false;}
+	}
+	while (flag);
+    }
+
+    void quicksort (int C[], int p, int r) {
+	int q;
+	if (p<r) { partition (C, p, r, q);
+		   quicksort (C, p, q);
+		   quicksort (C, q+1, r);
+	         }
+    }
+
+    void main ( ) {
+	int i, my_length;
+
+	my_length=5;
+	A[0]=59; A[1]=15; A[2]=26; A[3]=48; A[4]=37;
+	quicksort (A, 0, my_length-1);
+	i=0; 
+	do {print(A[i]); i=i+1;} while (i<my_length);
+    }

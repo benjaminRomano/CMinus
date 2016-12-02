@@ -1,0 +1,22 @@
+/* Compute square root of N using bisection algorithm. */
+
+int N, low, high;
+
+void update( )
+{ int mid;
+  mid=(low+high)/2;
+  if (mid*mid<=N) low=mid; else high=mid;
+}
+
+void main( )
+{ scan(N);
+  low=0;
+  high=N+1;
+  while (high-low>1) update( );
+  print(low);
+}
+
+
+
+
+
