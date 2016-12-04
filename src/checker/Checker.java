@@ -278,7 +278,7 @@ public class Checker {
             }
 
             return new LiteralType(TypeKind.Boolean);
-        } else if (kind == OperatorKind.Subtract || kind == OperatorKind.Multiply || kind == OperatorKind.Divide || kind == OperatorKind.Mod) {
+        } else if (kind == OperatorKind.Add || kind == OperatorKind.Subtract || kind == OperatorKind.Multiply || kind == OperatorKind.Divide || kind == OperatorKind.Mod) {
             if (leftExpression.getTypeKind() != TypeKind.Integer) {
                 throw new CheckerException("TypeKind mismatch for left-hand side of " + binaryExpression.operator + " operator. Expected an Integer");
             } else if (rightExpression.getTypeKind() != TypeKind.Integer) {

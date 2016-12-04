@@ -29,7 +29,7 @@ public class Main {
             new Checker().check(result);
             List<Instruction> instructions = new Generator().generate(result);
 
-            instructions.forEach(System.out::println);
+//            instructions.forEach(System.out::println);
 
             try (PrintWriter out = new PrintWriter("output.sm")) {
                 instructions.forEach(out::println);

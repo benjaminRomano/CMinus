@@ -47,11 +47,13 @@ IDENTIFIER = [a-zA-Z$_] [a-zA-Z0-9$_]*
 
 INTLITERAL = 0 | [1-9][0-9]*
 
-BOOLLITERAL = true | false;
+//BOOLLITERAL = true | false;
 
 new_line = \r|\n|\r\n;
 
 white_space = {new_line} | [ \t\f]
+
+comment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 
 %state STRING
 
@@ -66,28 +68,24 @@ white_space = {new_line} | [ \t\f]
     "else"            { return symbol("else", ELSE); }
     "void"            { return symbol("void", VOID); }
     "while"           { return symbol("while", WHILE); }
-
-    /* names */
-    {IDENTIFIER} { return symbol("identifier", IDENTIFIER, yytext()); }
-
-    /* string literals */
-
-    /* char literal */
-
-    /* bool literal */
-    {BOOLLITERAL} { return symbol("boolLiteral", BOOLLITERAL, Boolean.parseBoolean(yytext())); }
+    "true"            { return symbol("boolLiteral", BOOLLITERAL, true); }
+    "false"            { return symbol("boolLiteral", BOOLLITERAL, false); }
 
     /* literals */
     {INTLITERAL} { return symbol("intLiteral", INTLITERAL, Integer.parseInt(yytext())); }
 
-    ";"               { return symbol("semicolon", SEMICOLON); }
-    ","               { return symbol("comma", COMMA); }
+    {IDENTIFIER} { return symbol("identifier", IDENTIFIER, yytext()); }
+
+
+    ";"               { return symbol(";", SEMICOLON); }
+    ","               { return symbol(",", COMMA); }
     "("               { return symbol("(", OPENPAREN); }
     ")"               { return symbol(")", CLOSEPAREN); }
     "["               { return symbol("[", OPENBRACKET); }
     "]"               { return symbol("]", CLOSEBRACKET); }
     "{"               { return symbol("{", OPENBRACE); }
     "}"               { return symbol("}", CLOSEBRACE); }
+    "&"               { return symbol("&", AMPERSAND); }
     "="               { return symbol("=", EQUALS, OperatorKind.Assign); }
     "+"               { return symbol("+", PLUS, OperatorKind.Add); }
     "-"               { return symbol("-", MINUS, OperatorKind.Subtract); }
@@ -103,9 +101,9 @@ white_space = {new_line} | [ \t\f]
     "&&"              { return symbol("&&", AMPERSANDAMPERSAND, OperatorKind.And); }
     "||"              { return symbol("||", BARBAR, OperatorKind.Or); }
     "!"               { return symbol("!", EXCLAMATION, OperatorKind.Not); }
-    ","               { return symbol(",", COMMA); }
 
     {white_space}     { }
+    {comment}         { }
 }
 
 /* error fallback */

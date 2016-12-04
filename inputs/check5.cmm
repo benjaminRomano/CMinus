@@ -1,0 +1,11 @@
+
+void main(int a) {
+	int x,y,z,w;
+	scan(x);
+	scan(y,z);
+	z=x+y;
+	w=x*y;
+	print(z);
+	print(w,x);
+}
+

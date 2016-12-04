@@ -51,3 +51,5 @@ src/sym.java
 
 classes/
 dist/*.jar
+dist/*.out
+dist/*.sm

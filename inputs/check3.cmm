@@ -1,0 +1,11 @@
+
+void main( ) {
+	int x,y,z,w;
+	scan(x);
+	scan(y);
+	if (x) z=x+y;
+	while (y) w=x*y;
+	print(z);
+	print(w);
+}
+
