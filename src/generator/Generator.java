@@ -171,9 +171,61 @@ public class Generator {
             generateDoStatement((DoStatement) statement);
         } else if (statement instanceof FunctionCallStatement) {
             generateFunctionCallStatement((FunctionCallStatement) statement);
-        } else {
+        } else if (statement instanceof ForStatement) {
+            generateForStatement((ForStatement) statement);
+        } else if (statement instanceof BreakStatement) {
+            generateBreakStatement((BreakStatement) statement);
+        } else if (statement instanceof ContinueStatement) {
+            generateContinueStatement((ContinueStatement) statement);
+        } else if (statement instanceof AssignmentStatement){
             generateAssignmentStatement((AssignmentStatement) statement);
+        } else {
+            throw new GeneratorException("Could not generate SM code for statement");
         }
+    }
+
+    private void generateForStatement(ForStatement forStatement) throws CheckerException, GeneratorException {
+        forStatement.level = this.level;
+        if (forStatement.initializer != null) {
+            this.generateAssignmentStatement(forStatement.initializer);
+        }
+
+        String conditionalLabel = this.generateLabel();
+        forStatement.startLabel = this.generateLabel();
+        forStatement.exitLabel = this.generateLabel();
+
+        emit(new Instruction(conditionalLabel, OpCode.NOP));
+
+        if (forStatement.condition != null) {
+            this.generateExpression(forStatement.condition);
+            emit(new Instruction(OpCode.JMPF, forStatement.exitLabel));
+        }
+
+        this.generateStatement(forStatement.statement);
+
+        emit(new Instruction(forStatement.startLabel, OpCode.NOP));
+
+        if (forStatement.incrementer != null) {
+            this.generateAssignmentStatement(forStatement.incrementer);
+        }
+
+        emit(new Instruction(OpCode.JMP, conditionalLabel));
+
+        emit(new Instruction(forStatement.exitLabel, OpCode.NOP));
+    }
+
+    private void generateContinueStatement(ContinueStatement statement) throws GeneratorException {
+        for (int i = level; i > statement.loopStatement.level; i--) {
+            emit(new Instruction(OpCode.EXIT, i));
+        }
+        emit(new Instruction(OpCode.JMP, statement.loopStatement.startLabel));
+    }
+
+    private void generateBreakStatement(BreakStatement statement) throws GeneratorException {
+        for (int i = level; i > statement.loopStatement.level; i--) {
+            emit(new Instruction(OpCode.EXIT, i));
+        }
+        emit(new Instruction(OpCode.JMP, statement.loopStatement.exitLabel));
     }
 
     private void generateScanFunctionCall(LocationExpression locationExpression) throws CheckerException, GeneratorException {
@@ -229,24 +281,34 @@ public class Generator {
     }
 
     private void generateDoStatement(DoStatement doStatement) throws GeneratorException, CheckerException {
+        doStatement.level = this.level;
         String startLabel = generateLabel();
+
+        doStatement.startLabel = this.generateLabel();
+        doStatement.exitLabel = this.generateLabel();
 
         emit(new Instruction(startLabel, OpCode.NOP));
         generateStatement(doStatement.statement);
+
+        emit(new Instruction(doStatement.startLabel, OpCode.NOP));
+
         generateExpression(doStatement.conditional);
         emit(new Instruction(OpCode.JMPT, startLabel));
+
+        emit(new Instruction(doStatement.exitLabel, OpCode.NOP));
     }
 
     private void generateWhileStatement(WhileStatement whileStatement) throws GeneratorException, CheckerException {
-        String conditionalLabel = generateLabel();
-        String endLabel = generateLabel();
+        whileStatement.level = this.level;
+        whileStatement.startLabel = generateLabel();
+        whileStatement.exitLabel = generateLabel();
 
-        emit(new Instruction(conditionalLabel, OpCode.NOP));
+        emit(new Instruction(whileStatement.startLabel, OpCode.NOP));
         generateExpression(whileStatement.conditional);
-        emit(new Instruction(OpCode.JMPF, endLabel));
+        emit(new Instruction(OpCode.JMPF, whileStatement.exitLabel));
         generateStatement(whileStatement.statement);
-        emit(new Instruction(OpCode.JMP, conditionalLabel));
-        emit(new Instruction(endLabel, OpCode.NOP));
+        emit(new Instruction(OpCode.JMP, whileStatement.startLabel));
+        emit(new Instruction(whileStatement.exitLabel, OpCode.NOP));
     }
 
     private void generateFunctionCallStatement(FunctionCallStatement functionCallStatement) throws CheckerException, GeneratorException {

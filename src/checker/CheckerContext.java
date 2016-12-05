@@ -1,5 +1,6 @@
 package checker;
 
+import nodes.statements.LoopStatement;
 import symbols.Symbol;
 import symbols.SymbolTable;
 import types.FieldType;
@@ -7,10 +8,14 @@ import types.FunctionType;
 import types.LiteralType;
 import types.TypeKind;
 
+import java.util.Stack;
+
 public class CheckerContext {
     SymbolTable symbolTable;
+    Stack<LoopStatement> loopStatementStack;
 
     public CheckerContext() throws CheckerException {
+        this.loopStatementStack = new Stack<>();
         initializeSymbolTable();
     }
 

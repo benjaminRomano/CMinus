@@ -1,0 +1,68 @@
+
+
+/* Note prints the sequence 0,1,2,3,4 eight times */
+void main() {
+   int a, b, c, d, e, f, g, h, i, j;
+
+   /* Below are 8 different ways to write for-loops */
+
+   /* 111 */
+   for (a = 0; a < 5; a = a + 1;) {
+       print(a);
+   }
+
+   /* 110 */
+   for (b = 0; b < 5;;) {
+       print(b);
+       b = b + 1;
+   }
+
+   /* 101 */
+   for (c = 0;; c = c + 1;) {
+       print(c);
+       if (c == 4) {
+           break;
+       }
+   }
+
+   /* 100 */
+   for (d = 0;;;) {
+       print(d);
+       if (d == 4) {
+           break;
+       }
+       d = d + 1;
+   }
+
+   /* 011 */
+   e = 0;
+   for (; e < 5; e = e + 1;) {
+       print(e);
+   }
+
+   /* 010 */
+   f = 0;
+   for (; f < 5;;) {
+       print(f);
+       f = f + 1;
+   }
+
+   /* 001 */
+   g = 0;
+   for (;; g = g + 1;) {
+       print(g);
+       if (g == 4) {
+           break;
+       }
+   }
+
+   /* 000 */
+   h = 0;
+   for (;;;) {
+       print(h);
+       if (h == 4) {
+           break;
+       }
+       h = h + 1;
+    }
+}

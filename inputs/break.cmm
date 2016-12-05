@@ -1,0 +1,28 @@
+
+/* Note: This program should print nothing */
+void main() {
+    int a;
+
+    for (a = 0; a < 5; a = a + 1;) {
+        break;
+        print(a);
+    }
+
+    /* Testing break within nested blockStatements */
+    a = 0;
+    while (a < 5) {
+        if (true) {
+            if (true) {
+                break;
+            }
+        }
+        print(a);
+        a = a + 1;
+    }
+
+    a = 0;
+    do {
+        break;
+        print(a);
+    } while (a < 5);
+}

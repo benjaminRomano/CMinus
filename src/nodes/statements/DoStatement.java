@@ -2,7 +2,7 @@ package nodes.statements;
 
 import nodes.expressions.Expression;
 
-public class DoStatement implements Statement {
+public class DoStatement extends LoopStatement {
     public Statement statement;
     public Expression conditional;
 

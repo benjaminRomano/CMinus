@@ -21,7 +21,7 @@ parser code {:
   }
 :};
 
-terminal DO, IF, ELSE, VOID, WHILE, OPENPAREN, CLOSEPAREN, OPENBRACE, CLOSEBRACE, OPENBRACKET, CLOSEBRACKET, EQUALS, SEMICOLON, AMPERSAND, COMMA;
+terminal DO, IF, ELSE, VOID, WHILE, OPENPAREN, CLOSEPAREN, OPENBRACE, CLOSEBRACE, OPENBRACKET, CLOSEBRACKET, EQUALS, SEMICOLON, AMPERSAND, COMMA, CONTINUE, BREAK, FOR;
 
 terminal OperatorKind AMPERSANDAMPERSAND, BARBAR, PLUS, MINUS, LESSTHAN, LESSTHANEQUALS, GREATERTHAN, GREATERTHANEQUALS, EQUALSEQUALS, EXCLAMATIONEQUALS, EXCLAMATION, ASTERISK, SLASH, PERCENT;
 terminal TypeKind BOOL, INT;
@@ -59,6 +59,10 @@ non terminal Expression multiplicativeExpression;
 non terminal Expression unaryExpression;
 non terminal Expression primaryExpression;
 non terminal LocationExpression locationExpression;
+
+non terminal ForStatement forStatement;
+non terminal ContinueStatement continueStatement;
+non terminal BreakStatement breakStatement;
 
 precedence left ELSE;
 
@@ -106,8 +110,10 @@ statement ::= blockStatement:bs {: RESULT = bs; :}
             | whileStatement:ws {: RESULT = ws; :}
             | doStatement:ds {: RESULT = ds; :}
             | functionCallStatement:fcs {: RESULT = fcs; :}
-            | assignmentStatement:as {: RESULT = as; :};
-
+            | assignmentStatement:as {: RESULT = as; :}
+            | continueStatement:cs {: RESULT = cs; :}
+            | breakStatement:bs {: RESULT = bs; :}
+            | forStatement:fs {: RESULT = fs; :};
 
 ifStatement ::= IF OPENPAREN expression:e CLOSEPAREN statement:s {: RESULT = new IfStatement(e, s, null); :}
               | IF OPENPAREN expression:e CLOSEPAREN statement:s ELSE statement:es {: RESULT = new IfStatement(e, s, es); :};
@@ -124,16 +130,6 @@ expressionList ::= expressionList:el COMMA expression:e {: el.add(0, e); RESULT 
 
 
 assignmentStatement ::= locationExpression:le EQUALS expression:e SEMICOLON {: RESULT = new AssignmentStatement(le, e); :};
-
-//non terminal Expression logicalOrExpression;
-//non terminal Expression logicalAndExpression;
-//non terminal Expression equalityExpression;
-//non terminal Expression relationalExpression;
-//non terminal Expression additiveExpression;
-//non terminal Expression multiplicativeExpression;
-//non terminal Expression unaryExpression;
-//non terminal Expression primaryExpression;
-//non terminal LocationExpression locationExpression;
 
 expression ::= logicalOrExpression:e {: RESULT = e; :};
 
@@ -174,23 +170,15 @@ primaryExpression ::= BOOLLITERAL:b {: RESULT = new BooleanExpression(b); :}
 locationExpression ::= IDENTIFIER:i {: RESULT = new LocationExpression(i); :}
                      | IDENTIFIER:i OPENBRACKET expression:e CLOSEBRACKET {: RESULT = new LocationExpression(i, e); :};
 
-//expression ::= expression:e1 PLUS:o  expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 MINUS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 ASTERISK:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 SLASH:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 PERCENT:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 LESSTHAN:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 LESSTHANEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 GREATERTHAN:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 GREATERTHANEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 EQUALSEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 EXCLAMATIONEQUALS:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 AMPERSANDAMPERSAND:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | expression:e1 BARBAR:o expression:e2 {: RESULT = new BinaryExpression(e1, o, e2); :}
-//       | MINUS:o expression:e {: RESULT = new UnaryExpression(OperatorKind.Minus, e); :} %prec UMINUS
-//       | EXCLAMATION:o expression:e {: RESULT = new UnaryExpression(o, e); :}
-//       | OPENPAREN expression:e CLOSEPAREN {: RESULT = e; :}
-//       | BOOLLITERAL:b {: RESULT = new BooleanExpression(b); :}
-//       | INTLITERAL:i {: RESULT = new IntegerExpression(i); :}
-//       | locationExpression:le {: RESULT = le; :};
+forStatement ::= FOR OPENPAREN assignmentStatement:as1 expression:e1 SEMICOLON assignmentStatement:as2 CLOSEPAREN statement:s {: RESULT = new ForStatement(as1, e1, as2, s); :}
+               | FOR OPENPAREN assignmentStatement:as1 expression:e1 SEMICOLON SEMICOLON CLOSEPAREN statement:s {: RESULT = new ForStatement(as1, e1, null, s); :}
+               | FOR OPENPAREN assignmentStatement:as1 SEMICOLON assignmentStatement:as2 CLOSEPAREN statement:s {: RESULT = new ForStatement(as1, null, as2, s); :}
+               | FOR OPENPAREN assignmentStatement:as1 SEMICOLON SEMICOLON CLOSEPAREN statement:s {: RESULT = new ForStatement(as1, null, null, s); :}
+               | FOR OPENPAREN SEMICOLON expression:e1 SEMICOLON assignmentStatement:as2 CLOSEPAREN statement:s {: RESULT = new ForStatement(null, e1, as2, s); :}
+               | FOR OPENPAREN SEMICOLON expression:e1 SEMICOLON SEMICOLON CLOSEPAREN statement:s {: RESULT = new ForStatement(null, e1, null, s); :}
+               | FOR OPENPAREN SEMICOLON SEMICOLON assignmentStatement:as2 CLOSEPAREN statement:s {: RESULT = new ForStatement(null, null, as2, s); :}
+               | FOR OPENPAREN SEMICOLON SEMICOLON SEMICOLON CLOSEPAREN statement:s {: RESULT = new ForStatement(null, null, null, s); :};
 
+breakStatement ::= BREAK SEMICOLON {: RESULT = new BreakStatement(); :};
+
+continueStatement ::= CONTINUE SEMICOLON {: RESULT = new ContinueStatement(); :};

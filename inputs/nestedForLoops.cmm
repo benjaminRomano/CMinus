@@ -1,0 +1,22 @@
+
+
+void main() {
+    int i, j;
+
+
+    /* This should print 1 twice */
+    for (i = 1; i < 5; i = i + 1;) {
+        for (j = 1; j < 5; j = j + 1;) {
+            print(i * j);
+            break;
+        }
+        print(i);
+        break;
+    }
+
+    for (i = 1; i < 5; i = i + 1;) {
+        for (j = 1; j < 5; j = j + 1;) {
+            print(i * j);
+        }
+    }
+}

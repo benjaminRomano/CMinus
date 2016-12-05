@@ -1,0 +1,33 @@
+
+/* Note: This program should print 5 three times */
+void main() {
+    int a;
+
+    for (a = 0; a < 5; a = a + 1;) {
+        continue;
+        print(a);
+    }
+    print(a);
+
+    /* Testing continue within nested blockStatements */
+    a = 0;
+    while (a < 5) {
+        if (true) {
+            if (true) {
+                a = a + 1;
+                continue;
+            }
+        }
+        print(a);
+        a = a + 1;
+    }
+    print(a);
+
+    a = 0;
+    do {
+        a = a + 1;
+        continue;
+        print(a);
+    } while (a < 5);
+    print(a);
+}

@@ -133,14 +133,59 @@ public class Checker {
             checkDoStatement(context, (DoStatement) statement);
         } else if (statement instanceof FunctionCallStatement) {
             checkFunctionCallStatement(context, (FunctionCallStatement) statement);
+        } else if (statement instanceof BreakStatement) {
+            checkBreakStatement(context, (BreakStatement) statement);
+        } else if (statement instanceof ContinueStatement) {
+            checkContinueStatement(context, (ContinueStatement) statement);
+        } else if (statement instanceof ForStatement) {
+            checkForStatement(context, (ForStatement) statement);
         } else {
             checkAssignmentStatement(context, (AssignmentStatement) statement);
         }
     }
 
+    private void checkForStatement(CheckerContext context, ForStatement statement) throws CheckerException {
+        context.loopStatementStack.push(statement);
+
+        if (statement.initializer != null) {
+            this.checkAssignmentStatement(context, statement.initializer);
+        }
+
+        if (statement.condition != null) {
+            Type type = this.checkExpression(context, statement.condition);
+            if (type.getTypeKind() != TypeKind.Boolean) {
+                throw new CheckerException("Condition expression in for statement must return a boolean");
+            }
+        }
+
+        if (statement.incrementer != null) {
+            this.checkAssignmentStatement(context, statement.incrementer);
+        }
+
+        this.checkStatement(context, statement.statement);
+
+        context.loopStatementStack.pop();
+    }
+
+    private void checkContinueStatement(CheckerContext context, ContinueStatement statement) throws CheckerException {
+        if (context.loopStatementStack.isEmpty()) {
+            throw new CheckerException("Continue statement is not contained inside loop Statement");
+        }
+
+        statement.loopStatement = context.loopStatementStack.peek();
+    }
+
+    private void checkBreakStatement(CheckerContext context, BreakStatement statement) throws CheckerException {
+        if (context.loopStatementStack.isEmpty()) {
+            throw new CheckerException("Break statement is not contained inside loop Statement");
+        }
+
+        statement.loopStatement = context.loopStatementStack.peek();
+    }
+
     private void checkFunctionCallStatement(CheckerContext context, FunctionCallStatement functionCallStatement) throws CheckerException {
         if (!context.symbolTable.hasVariable(functionCallStatement.name)) {
-            throw new CheckerException("Variable, " + functionCallStatement.name+ " does not exist in this scope");
+            throw new CheckerException("Variable, " + functionCallStatement.name + " does not exist in this scope");
         }
 
         Symbol symbol = context.symbolTable.getVariable(functionCallStatement.name);
@@ -182,6 +227,7 @@ public class Checker {
     }
 
     private void checkDoStatement(CheckerContext context, DoStatement doStatement) throws CheckerException {
+        context.loopStatementStack.push(doStatement);
         checkStatement(context, doStatement.statement);
 
         Type type = checkExpression(context, doStatement.conditional);
@@ -189,9 +235,11 @@ public class Checker {
         if (type.getTypeKind() != TypeKind.Boolean) {
             throw new CheckerException("Conditional returned " + type.getTypeKind() + " expected boolean");
         }
+        context.loopStatementStack.pop();
     }
 
     private void checkWhileStatement(CheckerContext context, WhileStatement whileStatement) throws CheckerException {
+        context.loopStatementStack.push(whileStatement);
         Type type = checkExpression(context, whileStatement.conditional);
 
         if (type.getTypeKind() != TypeKind.Boolean) {
@@ -199,6 +247,7 @@ public class Checker {
         }
 
         checkStatement(context, whileStatement.statement);
+        context.loopStatementStack.pop();
     }
 
     private void checkIfStatement(CheckerContext context, IfStatement ifStatement) throws CheckerException {

@@ -71,6 +71,10 @@ comment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
     "true"            { return symbol("boolLiteral", BOOLLITERAL, true); }
     "false"            { return symbol("boolLiteral", BOOLLITERAL, false); }
 
+    "for"            { return symbol("for", FOR); }
+    "continue"            { return symbol("continue", CONTINUE); }
+    "break"           { return symbol("break", BREAK); }
+
     /* literals */
     {INTLITERAL} { return symbol("intLiteral", INTLITERAL, Integer.parseInt(yytext())); }
 

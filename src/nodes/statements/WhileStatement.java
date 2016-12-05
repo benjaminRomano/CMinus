@@ -2,7 +2,7 @@ package nodes.statements;
 
 import nodes.expressions.Expression;
 
-public class WhileStatement implements Statement {
+public class WhileStatement extends LoopStatement {
     public Expression conditional;
     public Statement statement;
 
